@@ -1,0 +1,33 @@
+{
+  auto_https disable_redirects
+}
+
+https://localhost:4318 {
+  tls /certs/localhost.pem /certs/localhost-key.pem
+
+  @health path /healthz
+  respond @health 200
+
+  @unauthorized {
+    path /v1/metrics /v1/logs
+    not header Authorization "Bearer {$INGEST_TOKEN}"
+  }
+  handle @unauthorized {
+    header Content-Type application/json
+    respond "{\"error\":\"unauthorized\"}" 401
+  }
+
+  handle /v1/metrics {
+    reverse_proxy otel-collector:4318 {
+      header_up -Authorization
+    }
+  }
+
+  handle /v1/logs {
+    reverse_proxy otel-collector:4318 {
+      header_up -Authorization
+    }
+  }
+
+  respond "Claude Code OTLP ingress. Send POST /v1/metrics or /v1/logs with Authorization: Bearer <token>."
+}
