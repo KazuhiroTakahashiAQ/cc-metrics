@@ -2,6 +2,8 @@
 
 Claude Code の OpenTelemetry メトリクスとイベントを収集し、Prometheus、Loki、Grafana で可視化するための最小構成です。現状の同梱設定は localhost 上の Docker 配置を前提にしていますが、将来的なリモート配置へ拡張しやすい構成にしています。記事の Tailscale 前提は使わず、`https://localhost:4318/v1/metrics` と `https://localhost:4318/v1/logs` へ `OTLP/HTTP + Bearer` で送信します。
 
+本構成は [Claude Code で OpenTelemetry を使う](https://yag.xyz/post/claude-code-otel/) を参考にして作成しました。
+
 ## Stack
 
 - Caddy: TLS 終端と Bearer 認証
