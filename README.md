@@ -17,7 +17,7 @@ Claude Code の OpenTelemetry メトリクスとイベントを収集し、Prome
 1. `.env.example` を `.env` にコピーして `INGEST_TOKEN` などを設定します。
 2. `./scripts/generate-local-certs.sh` を実行して `mkcert` のローカル証明書を生成します。
 3. `docker compose up -d` で起動します。
-4. Grafana を `http://localhost:3000` で開きます。
+4. Grafana を `http://localhost:13000` で開きます。
 
 詳しい手順は [docs/setup.md](docs/setup.md) を参照してください。
 
@@ -46,9 +46,32 @@ Claude Code の OpenTelemetry メトリクスとイベントを収集し、Prome
 
 - OTLP metrics ingest: `https://localhost:4318/v1/metrics`
 - OTLP logs ingest: `https://localhost:4318/v1/logs`
-- Prometheus UI: `http://localhost:9090`
-- Loki API: `http://localhost:3100`
-- Grafana UI: `http://localhost:3000`
+- Prometheus UI: `http://localhost:19090`
+- Loki API: `http://localhost:13100`
+- Grafana UI: `http://localhost:13000`
+
+## ポート衝突の対処
+
+`docker compose up -d` 実行時に `bind: address already in use` が出た場合、別プロセスがそのポートを使用しています。
+
+**使用中のプロセスを確認する**
+
+```bash
+lsof -iTCP:<ポート番号> -sTCP:LISTEN
+```
+
+**ポートを変更する**
+
+`docker-compose.yml` の該当サービスの `ports` 行を編集します。形式は `"127.0.0.1:<ホスト側ポート>:<コンテナ内ポート>"` です。ホスト側ポートのみ変更してください。
+
+例: Grafana を 13000 から 14000 に変更する場合
+
+```yaml
+ports:
+  - "127.0.0.1:14000:3000"
+```
+
+変更後は README の Endpoints と、Claude Code の `OTEL_EXPORTER_OTLP_ENDPOINT`（4318 を変更した場合のみ）も合わせて更新してください。
 
 ## Validation Hints
 
